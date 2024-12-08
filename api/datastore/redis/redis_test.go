@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/datastore/internal/datastoretest"
 	"github.com/garyburd/redigo/redis"
-	"github.com/iron-io/functions/api/datastore/internal/datastoretest"
 )
 
 const tmpRedis = "redis://%v:6301/"

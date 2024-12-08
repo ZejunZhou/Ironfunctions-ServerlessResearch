@@ -6,10 +6,10 @@ import (
 	"os"
 	"strings"
 
-	vers "github.com/iron-io/functions/api/version"
-	"github.com/iron-io/functions/fn/commands"
-	image_commands "github.com/iron-io/functions/fn/commands/images"
-	"github.com/iron-io/functions/fn/common"
+	vers "github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/version"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/fn/commands"
+	image_commands "github.com/ZejunZhou/Ironfunctions-ServerlessResearch/fn/commands/images"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/fn/common"
 	"github.com/urfave/cli"
 )
 

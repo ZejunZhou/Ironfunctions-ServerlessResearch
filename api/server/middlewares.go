@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/iron-io/functions/api/models"
-	"github.com/iron-io/functions/common"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/common"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/models"
 	"github.com/spf13/viper"
 )
 
@@ -37,7 +37,7 @@ func (h *JwtAuthMiddleware) Serve(ctx MiddlewareContext, w http.ResponseWriter, 
 		w.WriteHeader(http.StatusUnauthorized)
 		m := map[string]string{"error": "Invalid API Authorization token."}
 		json.NewEncoder(w).Encode(m)
-		return errors.New("Invalid API authorization token.")
+		return errors.New("invalid API authorization token.")
 	}
 
 	fmt.Println("auth succeeded!")

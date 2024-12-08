@@ -2,8 +2,9 @@ package commands
 
 import (
 	"fmt"
-	vers "github.com/iron-io/functions/api/version"
-	"github.com/iron-io/functions/fn/common"
+
+	vers "github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/version"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/fn/common"
 	functions "github.com/iron-io/functions_go"
 	"github.com/urfave/cli"
 )

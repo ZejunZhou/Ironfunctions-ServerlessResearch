@@ -16,8 +16,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/iron-io/functions/fn/common"
-	"github.com/iron-io/functions/fn/langs"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/fn/common"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/fn/langs"
 	"github.com/urfave/cli"
 )
 

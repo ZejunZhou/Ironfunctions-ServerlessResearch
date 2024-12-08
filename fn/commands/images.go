@@ -1,7 +1,7 @@
 package commands
 
 import (
-	image_commands "github.com/iron-io/functions/fn/commands/images"
+	image_commands "github.com/ZejunZhou/Ironfunctions-ServerlessResearch/fn/commands/images"
 	"github.com/iron-io/functions_go"
 	"github.com/urfave/cli"
 )

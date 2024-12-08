@@ -11,16 +11,17 @@ import (
 	"path"
 	"sync"
 
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/datastore"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/models"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/mqs"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/runner"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/runner/common"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/runner/task"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/server/internal/routecache"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
-	"github.com/iron-io/functions/api"
-	"github.com/iron-io/functions/api/datastore"
-	"github.com/iron-io/functions/api/models"
-	"github.com/iron-io/functions/api/mqs"
-	"github.com/iron-io/functions/api/runner"
-	"github.com/iron-io/functions/api/runner/task"
-	"github.com/iron-io/functions/api/server/internal/routecache"
-	"github.com/iron-io/runner/common"
 	"github.com/spf13/viper"
 	"github.com/ucirello/supervisor"
 )
@@ -61,6 +62,7 @@ func NewFromEnv(ctx context.Context) *Server {
 	if err != nil {
 		logrus.WithError(err).Fatalln("Error initializing datastore.")
 	}
+	logrus.Infof("Database URL: %s", viper.GetString(EnvDBURL))
 
 	mq, err := mqs.New(viper.GetString(EnvMQURL))
 	if err != nil {

@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/models"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/runner/common"
 	"github.com/garyburd/redigo/redis"
-	"github.com/iron-io/functions/api/models"
-	"github.com/iron-io/runner/common"
 )
 
 type RedisMQ struct {

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/examples/blog/database"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/examples/blog/models"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/iron-io/functions/examples/blog/database"
-	"github.com/iron-io/functions/examples/blog/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

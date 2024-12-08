@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/iron-io/functions/api/models"
-	"github.com/iron-io/functions/api/server"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/models"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/server"
 )
 
 func main() {

@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package server
@@ -10,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iron-io/functions/api/models"
-	"github.com/iron-io/functions/fn/app"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/models"
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/fn/app"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 )

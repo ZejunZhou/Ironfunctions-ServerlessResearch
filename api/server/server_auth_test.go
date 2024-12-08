@@ -1,3 +1,4 @@
+//go:build server
 // +build server
 
 package server
@@ -9,8 +10,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/common"
 	"github.com/gin-gonic/gin"
-	"github.com/iron-io/functions/common"
 	"github.com/spf13/viper"
 )
 

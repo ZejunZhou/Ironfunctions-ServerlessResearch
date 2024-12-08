@@ -3,8 +3,8 @@ package server
 import (
 	"net/http"
 
+	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/version"
 	"github.com/gin-gonic/gin"
-	"github.com/iron-io/functions/api/version"
 )
 
 func handleVersion(c *gin.Context) {
