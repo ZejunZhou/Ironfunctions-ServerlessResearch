@@ -1,8 +1,0 @@
-name: usershared
-version: 0.0.1
-runtime: docker
-path: ""
-max_concurrency: 1
-
-
-

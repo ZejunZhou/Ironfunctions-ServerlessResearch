@@ -70,9 +70,10 @@ require (
 	github.com/go-openapi/analysis v0.17.0 // indirect
 	github.com/go-openapi/jsonpointer v0.17.0 // indirect
 	github.com/go-openapi/jsonreference v0.17.0 // indirect
-	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f // indirect
 	github.com/gorilla/mux v1.4.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.0.0-20170211013415-3573b8b52aa7 // indirect

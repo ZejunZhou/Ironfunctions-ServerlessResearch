@@ -36,50 +36,50 @@ func main() {
 
 For Linux
 
-```
+```zsh
 curl -LSs git.io/ironfn | sh
 ```
 
 For macOS
 
-```
+```zsh
 brew install iron-functions
 ```
 
 7. Init function with runtime
 
-```
+```zsh
 fn init --runtime go hello
 ```
 
 8. Buld function - fn build is used to build the Docker image of the function
 
-```
+```zsh
 fn build
 ```
 
 9. Create app - Create application, organization and management multiple functions
 
-```
+```zsh
 fn apps create myapp
 ```
 
 10. Creates a route and maps the specified path to the newly created function
 
-```
+```zsh
 fn routes create myapp /hello
 ```
 
 11. If update function.go, then build and update route again
 
-```
+```zsh
 fn build
 fn routes update myapp /hello
 ```
 
 12. Invoke function
 
-```
+```zsh
 curl http://localhost:8080/r/myapp/hello
 ```
 

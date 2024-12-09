@@ -1,0 +1,14 @@
+FROM golang:alpine AS builder
+
+COPY ./hotelReservation /hotelReservation
+RUN cd /hotelReservation &&  ./build.sh
+
+FROM alpine:latest
+
+RUN mkdir -p /tmp/ironfunc/ipc
+RUN mkdir -p /tmp/ironfunc/ipc/fifo
+COPY /func_config.json /
+COPY ./hotelReservation /go/src/github.com/harlow/go-micro-services
+COPY --from=builder /hotelReservation/build /go/src/github.com/harlow/go-micro-services/build
+
+WORKDIR /go/src/github.com/harlow/go-micro-services

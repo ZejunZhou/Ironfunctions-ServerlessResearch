@@ -1,6 +1,0 @@
-name: get_hotel
-version: 0.0.1
-runtime: go
-entrypoint: ./func
-path: /get_hotel
-max_concurrency: 1

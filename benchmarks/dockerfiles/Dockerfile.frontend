@@ -1,0 +1,19 @@
+FROM iron-hotel:latest
+
+WORKDIR /go/src/github.com/harlow/go-micro-services
+
+ENV FAAS_ROOT_PATH_FOR_IPC=/tmp/ironfunc/ipc
+ENV FAAS_FUNC_ID=1
+ENV FAAS_CLIENT_ID=1
+ENV FAAS_MSG_PIPE_FD=1
+
+RUN mkdir -p /tmp/ironfunc/ipc
+RUN touch /tmp/ironfunc/ipc/engine.sock
+RUN mkdir -p /tmp/ironfunc/ipc/fifo
+RUN touch /tmp/ironfunc/ipc/fifo/worker_1_input
+RUN touch /tmp/ironfunc/ipc/fifo/worker_1_output
+RUN touch /tmp/ironfunc/ipc/fifo/worker_2_input
+RUN touch /tmp/ironfunc/ipc/fifo/worker_2_output
+
+
+ENTRYPOINT ["./build/frontend"]

@@ -33,7 +33,7 @@ import (
 	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/runner/common/stats"
 	"github.com/ZejunZhou/Ironfunctions-ServerlessResearch/api/runner/drivers"
 	manifest "github.com/docker/distribution/manifest/schema1"
-	"github.com/fsouza/go-dockerclient"
+	docker "github.com/fsouza/go-dockerclient"
 	"github.com/heroku/docker-registry-client/registry"
 )
 
@@ -189,7 +189,6 @@ func registryURL(addr string) (string, error) {
 }
 
 func isAuthError(err error) bool {
-	// AARGH!
 	if urlError, ok := err.(*url.Error); ok {
 		if httpError, ok := urlError.Err.(*registry.HttpStatusError); ok {
 			if httpError.Response.StatusCode == 401 {
@@ -258,8 +257,12 @@ func (drv *DockerDriver) Prepare(ctx context.Context, task drivers.ContainerTask
 			AttachStdin: true,
 			StdinOnce:   true,
 		},
-		HostConfig: &docker.HostConfig{},
-		Context:    ctx,
+		HostConfig: &docker.HostConfig{
+			Binds: []string{
+				"/dev/shm:/dev/shm",
+			},
+		},
+		Context: ctx,
 	}
 
 	volumes := task.Volumes()
@@ -576,7 +579,12 @@ func (drv *DockerDriver) startTask(ctx context.Context, container string) error 
 	log := common.Logger(ctx)
 	startTimer := drv.NewTimer("docker", "start_container", 1.0)
 	log.WithFields(logrus.Fields{"container": container}).Debug("Starting container execution")
-	err := drv.docker.StartContainerWithContext(container, nil, ctx)
+	err := drv.docker.StartContainerWithContext(container,
+		&docker.HostConfig{
+			Binds: []string{
+				"/dev/shm:/dev/shm",
+			},
+		}, ctx)
 	startTimer.Measure()
 	if err != nil {
 		dockerErr, ok := err.(*docker.Error)

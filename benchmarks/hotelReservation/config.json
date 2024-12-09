@@ -1,0 +1,15 @@
+{
+  "GeoMongoAddress": "mongodb-hotelresv:27017",
+  "ProfileMongoAddress": "mongodb-hotelresv:27017",
+  "ProfileRedisAddress": "redis-profile:6379",
+  "ProfileMemcAddress": "memcached-profile:11211",
+  "RateMongoAddress": "mongodb-hotelresv:27017",
+  "RateRedisAddress": "redis-rate:6379",
+  "RateMemcAddress": "memcached-rate:11211",
+  "RecommendMongoAddress": "mongodb-hotelresv:27017",
+  "ReserveMongoAddress": "mongodb-hotelresv:27017",
+  "ReserveRedisAddress": "redis-reserve:6379",
+  "ReserveMemcAddress": "memcached-reserve:11211",
+  "UserMongoAddress": "mongodb-hotelresv:27017",
+  "UserRedisAddress": "redis-hotelresv:6379"
+}

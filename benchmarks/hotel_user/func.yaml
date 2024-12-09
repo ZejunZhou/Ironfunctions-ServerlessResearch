@@ -1,0 +1,6 @@
+name: user
+version: 0.0.1
+runtime: go
+entrypoint: ./func
+path: ""
+max_concurrency: 1
