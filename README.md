@@ -2,7 +2,7 @@
 
 1. `docker build -f Dockerfile.2690 -t 2690 .`
 
-2. `docker run --rm -it --name functions -v ${PWD}/data:/app/data -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 2690`
+2. `docker run -d --rm -it --name functions -v ${PWD}/data:/app/data -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 2690`
 
 3. `cd test-function`
 
