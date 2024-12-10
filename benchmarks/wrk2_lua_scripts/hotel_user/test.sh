@@ -6,3 +6,7 @@ wrk --latency -R 500 http://pc70.cloudlab.umass.edu:8080/r/hotel/user > ./hotel_
 
 
 cat ./hotel_user/100 ./hotel_user/200 ./hotel_user/300 ./hotel_user/400 | ./venv/bin/wrk2img ./hotel_user/output.png 
+
+
+# original
+wrk --latency -R 100 http://pc70.cloudlab.umass.edu:8080/r/app/user > ./hotel_user/original/100

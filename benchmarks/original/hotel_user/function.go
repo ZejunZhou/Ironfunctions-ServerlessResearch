@@ -90,5 +90,5 @@ func writeUserToSharedMemory(user *User) error {
 func main() {
 	p := &User{}
 	json.NewDecoder(os.Stdin).Decode(p)
-	fmt.Printf("Hello %v!", p.Username)
+	fmt.Printf("Hello %v!\n", p.Username)
 }
