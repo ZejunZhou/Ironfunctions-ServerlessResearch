@@ -9,4 +9,4 @@ cat ./hotel_user/100 ./hotel_user/200 ./hotel_user/300 ./hotel_user/400 | ./venv
 
 
 # original
-wrk --latency -R 100 http://pc70.cloudlab.umass.edu:8080/r/app/user > ./hotel_user/original/100
+wrk --latency -R 100 http://pc70.cloudlab.umass.edu:8080/r/app/hotel > ./hotel_user/original/100
