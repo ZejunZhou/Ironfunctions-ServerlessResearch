@@ -86,19 +86,19 @@ func writeHotelToSharedMemory(hotel *HotelSearch) error {
 
 func main() {
 	p := &HotelSearch{}
-	json.NewDecoder(os.Stdin).Decode(p)
-	if p.InDate != "" {
-		if err := writeHotelToSharedMemory(p); err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
-
-	hotel, err := getHotelFromSharedMemory()
+	err := json.NewDecoder(os.Stdin).Decode(p)
 	if err != nil {
-		fmt.Println(err)
-	}
-	if hotel != nil {
-		fmt.Println(hotel)
+		hotel, err := getHotelFromSharedMemory()
+		if err != nil {
+			fmt.Println(err)
+		}
+		if hotel != nil {
+			fmt.Println(hotel)
+		}
+	} else {
+		err := writeHotelToSharedMemory(p)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
