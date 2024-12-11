@@ -27,7 +27,9 @@ func initializeUserDatabase(client *mongo.Client) bool {
 
 	// Try to connect to the collection and print some data
 	var result User
-	err = collection.FindOne(context.TODO(), bson.M{}).Decode(&result)
+	err = collection.FindOne(context.TODO(), bson.M{
+		"username": "Cornell_1",
+	}).Decode(&result)
 	if err != nil {
 		log.Fatal(err)
 	}

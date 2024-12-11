@@ -85,8 +85,8 @@ curl http://localhost:8080/r/myapp/hello
 
 13. Frontend Access
 
-```
-docker run --rm -it --link functions:api -p 4000:4000 -e "API_URL=http://api:8080" iron/functions-ui:0.0.2
+```zsh
+docker run -d --rm -it --link functions:api -p 4000:4000 -e "API_URL=http://api:8080" iron/functions-ui:0.0.2
 ```
 
 Access http://localhost:4000/
