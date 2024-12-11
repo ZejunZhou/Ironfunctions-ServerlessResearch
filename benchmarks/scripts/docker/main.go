@@ -81,11 +81,11 @@ const MongoDBURL = "mongodb://pc99.cloudlab.umass.edu:27017"
 func initializeUserDatabase(client *mongo.Client) bool {
 	err := client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to ping the database: %v", err)
+		return false
 	}
 
 	collection := client.Database("user-db").Collection("user")
-
 	for i := 0; i <= 10000; i++ {
 		suffix := strconv.Itoa(i)
 		userName := "Cornell_" + suffix
@@ -97,23 +97,29 @@ func initializeUserDatabase(client *mongo.Client) bool {
 		filter := bson.M{"username": userName}
 		count, err := collection.CountDocuments(context.TODO(), filter)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Failed to count documents: %v", err)
+			return false
 		}
+
 		if count == 0 {
 			_, err := collection.InsertOne(context.TODO(), User{Username: userName, Password: password})
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("Failed to insert document: %v", err)
+				return false
 			}
+		} else {
+			// log.Printf("User %s already exists", userName)
 		}
 	}
 
-	indexModel := mongo.IndexModel{
-		Keys: bson.M{"username": 1},
-	}
-	_, err = collection.Indexes().CreateOne(context.TODO(), indexModel)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// indexModel := mongo.IndexModel{
+	// 	Keys: bson.M{"username": 1},
+	// }
+	// _, err = collection.Indexes().CreateOne(context.TODO(), indexModel)
+	// if err != nil {
+	// 	log.Fatalf("Failed to create index: %v", err)
+	// 	return false
+	// }
 
 	return true
 }
@@ -697,12 +703,15 @@ func main() {
 
 	defer client.Disconnect(context.Background())
 
-	initializeUserDatabase(client)
-	initializeGeoDatabase(client)
-	initializeCollectionDatabase(client)
-	initializeInventoryDatabase(client)
-	initializeRecommendationDatabase(client)
-	initializeReservationDatabase(client)
+	res := initializeUserDatabase(client)
+	if !res {
+		log.Fatal("Failed to initialize user database.")
+	}
+	// initializeGeoDatabase(client)
+	// initializeCollectionDatabase(client)
+	// initializeInventoryDatabase(client)
+	// initializeRecommendationDatabase(client)
+	// initializeReservationDatabase(client)
 
 	log.Println("Database initialization completed.")
 }

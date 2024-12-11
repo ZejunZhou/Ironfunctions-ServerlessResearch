@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -38,7 +38,7 @@ func getUserFromSharedMemory(username string) (*User, error) {
 
 	var users []User
 	if stat, _ := file.Stat(); stat.Size() != 0 {
-		data, err := ioutil.ReadAll(file)
+		data, err := io.ReadAll(file)
 		if err != nil {
 			return nil, err
 		}
@@ -66,7 +66,7 @@ func writeUserToSharedMemory(user *User) error {
 
 	var users []User
 	if stat, _ := file.Stat(); stat.Size() != 0 {
-		data, err := ioutil.ReadAll(file)
+		data, err := io.ReadAll(file)
 		if err != nil {
 			return err
 		}
@@ -97,11 +97,14 @@ func writeUserToSharedMemory(user *User) error {
 	return nil
 }
 
+const MongoDBURL = "mongodb://pc99.cloudlab.umass.edu:27017"
+
 func getUserFromMongoDB(username string) (*User, error) {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://pc99.cloudlab.umass.edu:27017"))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(MongoDBURL))
 	if err != nil {
 		return nil, err
 	}
+
 	collection := client.Database("user-db").Collection("user")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -159,13 +162,16 @@ func main() {
 				} else if existingUser.Password == user.Password {
 					fmt.Fprintf(&buf, "Hello, %s, welcome back!", user.Username)
 				}
+			} else {
+				res.StatusCode = 404
+				fmt.Fprintf(&buf, "Non-existing user %s, please sign up first\n", user.Username)
 			}
 			// for k, vs := range req.Header {
 			// 	fmt.Fprintf(&buf, "ENV: %s %#v\n", k, vs)
 			// }
 		}
 
-		res.Body = ioutil.NopCloser(&buf)
+		res.Body = io.NopCloser(&buf)
 		res.ContentLength = int64(buf.Len())
 		res.Write(os.Stdout)
 	}
