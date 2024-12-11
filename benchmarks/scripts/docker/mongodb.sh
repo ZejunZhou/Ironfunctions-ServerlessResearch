@@ -1,0 +1,1 @@
+docker run -d --name mongodb-hotelresv --hostname socialnetwork-mongodb -p 27017:27017 -v /mnt/inmem/db:/data/db mongo:4.2.8-bionic mongod --nojournal
