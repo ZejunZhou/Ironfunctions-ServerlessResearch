@@ -3,12 +3,18 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
@@ -91,6 +97,27 @@ func writeUserToSharedMemory(user *User) error {
 	return nil
 }
 
+func getUserFromMongoDB(username string) (*User, error) {
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://pc99.cloudlab.umass.edu:27017"))
+	if err != nil {
+		return nil, err
+	}
+	collection := client.Database("user-db").Collection("user")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var user User
+	err = collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func main() {
 	for {
 		res := http.Response{
@@ -119,7 +146,7 @@ func main() {
 				fmt.Fprintln(&buf, err)
 			}
 
-			existingUser, err := getUserFromSharedMemory(user.Username)
+			existingUser, err := getUserFromMongoDB(user.Username)
 			if err != nil {
 				res.StatusCode = 500
 				res.Status = http.StatusText(res.StatusCode)
@@ -130,17 +157,9 @@ func main() {
 					res.Status = http.StatusText(res.StatusCode)
 					fmt.Fprintln(&buf, "Password is incorrect")
 				} else if existingUser.Password == user.Password {
-					fmt.Fprintf(&buf, "Hello %+v\n", existingUser)
-				}
-			} else {
-				err := writeUserToSharedMemory(user)
-				if err != nil {
-					res.StatusCode = 500
-					res.Status = http.StatusText(res.StatusCode)
-					fmt.Fprintln(&buf, err)
+					fmt.Fprintf(&buf, "Hello, %s, welcome back!", user.Username)
 				}
 			}
-			fmt.Fprintf(&buf, "Hello %+v\n", user)
 			// for k, vs := range req.Header {
 			// 	fmt.Fprintf(&buf, "ENV: %s %#v\n", k, vs)
 			// }

@@ -76,7 +76,7 @@ type Number struct {
 	Number  int    `bson:"numberOfRoom"`
 }
 
-const MongoDBURL = "mongodb://localhost:27017"
+const MongoDBURL = "mongodb://pc99.cloudlab.umass.edu:27017"
 
 func initializeUserDatabase(client *mongo.Client) bool {
 	err := client.Ping(context.TODO(), nil)
