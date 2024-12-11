@@ -160,7 +160,7 @@ func main() {
 					res.Status = http.StatusText(res.StatusCode)
 					fmt.Fprintln(&buf, "Password is incorrect")
 				} else if existingUser.Password == user.Password {
-					fmt.Fprintf(&buf, "Hello, %s, welcome back!", user.Username)
+					fmt.Fprintf(&buf, "Hello, %s, welcome back!\n", user.Username)
 				}
 			} else {
 				res.StatusCode = 404
