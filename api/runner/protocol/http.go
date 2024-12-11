@@ -27,6 +27,7 @@ func (p *HTTPProtocol) IsStreamable() bool {
 	return true
 }
 
+// Dispatch sends the task to the container, and waits for the response.
 func (p *HTTPProtocol) Dispatch(ctx context.Context, t task.Request) error {
 	var retErr error
 	done := make(chan struct{})
@@ -48,6 +49,7 @@ func (p *HTTPProtocol) Dispatch(ctx context.Context, t task.Request) error {
 			retErr = err
 			return
 		}
+		// Write the request to the container by writing to channel
 		p.in.Write(raw)
 
 		res, err := http.ReadResponse(bufio.NewReader(p.out), req)
@@ -56,6 +58,7 @@ func (p *HTTPProtocol) Dispatch(ctx context.Context, t task.Request) error {
 			return
 		}
 
+		// Write the response back to the caller using stdout
 		io.Copy(t.Config.Stdout, res.Body)
 		done <- struct{}{}
 	}()

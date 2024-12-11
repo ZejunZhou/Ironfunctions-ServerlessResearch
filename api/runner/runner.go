@@ -35,8 +35,8 @@ type Runner struct {
 }
 
 var (
-	ErrTimeOutNoMemory = errors.New("Task timed out. No available memory.")
-	ErrFullQueue       = errors.New("The runner queue is full")
+	ErrTimeOutNoMemory = errors.New("task timed out, no available memory")
+	ErrFullQueue       = errors.New("the runner queue is full")
 
 	WaitMemoryTimeout = 10 * time.Second
 )
@@ -197,6 +197,7 @@ func (r *Runner) Run(ctx context.Context, cfg *task.Config) (drivers.RunResult, 
 	}
 	defer r.addUsedMem(-1 * int64(cfg.Memory))
 
+	// prepare the container, ignore if it already exists
 	cookie, err := r.driver.Prepare(ctx, ctask)
 	if err != nil {
 		return nil, err
@@ -205,6 +206,7 @@ func (r *Runner) Run(ctx context.Context, cfg *task.Config) (drivers.RunResult, 
 
 	metricStart := time.Now()
 
+	// start the container and pass
 	result, err := cookie.Run(ctx)
 	if err != nil {
 		return nil, err
@@ -223,7 +225,7 @@ func (r *Runner) Run(ctx context.Context, cfg *task.Config) (drivers.RunResult, 
 	return result, nil
 }
 
-func (r Runner) EnsureImageExists(ctx context.Context, cfg *task.Config) error {
+func (r *Runner) EnsureImageExists(ctx context.Context, cfg *task.Config) error {
 	ctask := &containerTask{
 		cfg: cfg,
 	}

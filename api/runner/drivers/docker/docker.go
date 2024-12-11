@@ -289,15 +289,23 @@ func (drv *DockerDriver) Prepare(ctx context.Context, task drivers.ContainerTask
 	_, err = drv.docker.CreateContainer(container)
 	createTimer.Measure()
 	if err != nil {
-		// since we retry under the hood, if the container gets created and retry fails, we can just ignore error
+		// ignore ErrContainerAlreadyExists error
 		if err != docker.ErrContainerAlreadyExists {
-			logrus.WithFields(logrus.Fields{"task_id": task.Id(), "command": container.Config.Cmd, "memory": container.Config.Memory,
-				"cpu_shares": container.Config.CPUShares, "hostname": container.Config.Hostname, "name": container.Name,
-				"image": container.Config.Image, "volumes": container.Config.Volumes, "binds": container.HostConfig.Binds, "container": containerName,
+			logrus.WithFields(logrus.Fields{"task_id": task.Id(),
+				"command":    container.Config.Cmd,
+				"memory":     container.Config.Memory,
+				"cpu_shares": container.Config.CPUShares,
+				"hostname":   container.Config.Hostname,
+				"name":       container.Name,
+				"image":      container.Config.Image,
+				"volumes":    container.Config.Volumes,
+				"binds":      container.HostConfig.Binds,
+				"container":  containerName,
 			}).WithError(err).Error("Could not create container")
 
+			// check if the error is a configuration error
 			if ce := containerConfigError(err); ce != nil {
-				return nil, common.UserError(fmt.Errorf("Failed to create container from task configuration '%s'", ce))
+				return nil, common.UserError(fmt.Errorf("failed to create container from task configuration '%s'", ce))
 			}
 			return nil, err
 		}
@@ -426,15 +434,24 @@ func (drv *DockerDriver) run(ctx context.Context, container string, task drivers
 	mwOut, mwErr := task.Logger()
 
 	timer := drv.NewTimer("docker", "attach_container", 1)
+	// pass the input stream to the container
 	waiter, err := drv.docker.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
-		Container: container, OutputStream: mwOut, ErrorStream: mwErr,
-		Stream: true, Logs: true, Stdout: true, Stderr: true,
-		Stdin: true, InputStream: task.Input()})
+		Container:    container,
+		OutputStream: mwOut,
+		ErrorStream:  mwErr,
+		Stream:       true,
+		Logs:         true,
+		Stdout:       true,
+		Stderr:       true,
+		Stdin:        true,
+		InputStream:  task.Input(),
+	})
 	timer.Measure()
 	if err != nil {
 		return nil, err
 	}
 
+	// start the container
 	err = drv.startTask(ctx, container)
 	if err != nil {
 		return nil, err

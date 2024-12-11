@@ -77,20 +77,22 @@ func RunTask(tasks chan task.Request, ctx context.Context, cfg *task.Config) (dr
 func StartWorkers(ctx context.Context, rnr *Runner, tasks <-chan task.Request) {
 	var wg sync.WaitGroup
 	defer wg.Wait()
-	var hcmgr htfnmgr
+	var hfcmgr hotFnManager
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case task := <-tasks:
-			p := hcmgr.getPipe(ctx, rnr, task.Config)
+			p := hfcmgr.getTasks(ctx, rnr, task.Config)
 			if p == nil {
 				wg.Add(1)
+				// normal and non-streamable function, use Stdin and Stdout
 				go runTaskReq(rnr, &wg, task)
 				continue
 			}
 
+			// streamable function, use the hot function manager
 			rnr.Start()
 			select {
 			case <-ctx.Done():
@@ -102,15 +104,18 @@ func StartWorkers(ctx context.Context, rnr *Runner, tasks <-chan task.Request) {
 	}
 }
 
-// htfnmgr is the intermediate between the common concurrency stream and
+// hotFnManager is the intermediate between the common concurrency stream and
 // hot functions. All hot functions share a single task.Request stream per
 // function (chn), but each function may have more than one hot function (hc).
-type htfnmgr struct {
+type hotFnManager struct {
 	chn map[string]chan task.Request
-	hc  map[string]*htfnsvr
+	hc  map[string]*hotFnServer
 }
 
-func (h *htfnmgr) getPipe(ctx context.Context, rnr *Runner, cfg *task.Config) chan task.Request {
+// return the stask when it is streamable, otherwise return nil
+// it will also check if the hot function is already running
+func (h *hotFnManager) getTasks(ctx context.Context, rnr *Runner, cfg *task.Config) chan task.Request {
+	// returns true if the format is streamable: HTTP
 	isStream, err := protocol.IsStreamable(cfg.Format)
 	if err != nil {
 		logrus.WithError(err).Info("could not detect container IO protocol")
@@ -119,18 +124,18 @@ func (h *htfnmgr) getPipe(ctx context.Context, rnr *Runner, cfg *task.Config) ch
 		return nil
 	}
 
+	// HTTP streamable format detected, let's start the hot function manager
 	if h.chn == nil {
 		h.chn = make(map[string]chan task.Request)
-		h.hc = make(map[string]*htfnsvr)
+		h.hc = make(map[string]*hotFnServer)
 	}
 
-	// TODO(ccirello): re-implement this without memory allocation (fmt.Sprint)
 	fn := fmt.Sprint(cfg.AppName, ",", cfg.Path, cfg.Image, cfg.Timeout, cfg.Memory, cfg.Format, cfg.MaxConcurrency)
 	tasks, ok := h.chn[fn]
 	if !ok {
 		h.chn[fn] = make(chan task.Request)
 		tasks = h.chn[fn]
-		svr := newhtfnsvr(ctx, cfg, rnr, tasks)
+		svr := newHotFnServer(ctx, cfg, rnr, tasks)
 		if err := svr.launch(ctx); err != nil {
 			logrus.WithError(err).Error("cannot start hot function supervisor")
 			return nil
@@ -141,11 +146,11 @@ func (h *htfnmgr) getPipe(ctx context.Context, rnr *Runner, cfg *task.Config) ch
 	return tasks
 }
 
-// htfnsvr is part of htfnmgr, abstracted apart for simplicity, its only
+// hotFnServer is part of htfnmgr, abstracted apart for simplicity, its only
 // purpose is to test for hot functions saturation and try starting as many as
 // needed. In case of absence of workload, it will stop trying to start new hot
 // containers.
-type htfnsvr struct {
+type hotFnServer struct {
 	cfg      *task.Config
 	rnr      *Runner
 	tasksin  <-chan task.Request
@@ -153,8 +158,8 @@ type htfnsvr struct {
 	maxc     chan struct{}
 }
 
-func newhtfnsvr(ctx context.Context, cfg *task.Config, rnr *Runner, tasks <-chan task.Request) *htfnsvr {
-	svr := &htfnsvr{
+func newHotFnServer(ctx context.Context, cfg *task.Config, rnr *Runner, tasks <-chan task.Request) *hotFnServer {
+	svr := &hotFnServer{
 		cfg:      cfg,
 		rnr:      rnr,
 		tasksin:  tasks,
@@ -172,7 +177,7 @@ func newhtfnsvr(ctx context.Context, cfg *task.Config, rnr *Runner, tasks <-chan
 	return svr
 }
 
-func (svr *htfnsvr) pipe(ctx context.Context) {
+func (svr *hotFnServer) pipe(ctx context.Context) {
 	for {
 		select {
 		case t := <-svr.tasksin:
@@ -188,10 +193,10 @@ func (svr *htfnsvr) pipe(ctx context.Context) {
 	}
 }
 
-func (svr *htfnsvr) launch(ctx context.Context) error {
+func (svr *hotFnServer) launch(ctx context.Context) error {
 	select {
 	case svr.maxc <- struct{}{}:
-		hc, err := newhtfn(
+		hc, err := newHotFn(
 			svr.cfg,
 			protocol.Protocol(svr.cfg.Format),
 			svr.tasksout,
@@ -210,10 +215,10 @@ func (svr *htfnsvr) launch(ctx context.Context) error {
 	return nil
 }
 
-// htfn actually interfaces an incoming task from the common concurrency
+// HotFn actually interfaces an incoming task from the common concurrency
 // stream into a long lived container. If idle long enough, it will stop. It
 // uses route configuration to determine which protocol to use.
-type htfn struct {
+type HotFn struct {
 	cfg   *task.Config
 	proto protocol.ContainerIO
 	tasks <-chan task.Request
@@ -230,7 +235,7 @@ type htfn struct {
 	rnr *Runner
 }
 
-func newhtfn(cfg *task.Config, proto protocol.Protocol, tasks <-chan task.Request, rnr *Runner) (*htfn, error) {
+func newHotFn(cfg *task.Config, proto protocol.Protocol, tasks <-chan task.Request, rnr *Runner) (*HotFn, error) {
 	stdinr, stdinw := io.Pipe()
 	stdoutr, stdoutw := io.Pipe()
 
@@ -239,7 +244,7 @@ func newhtfn(cfg *task.Config, proto protocol.Protocol, tasks <-chan task.Reques
 		return nil, err
 	}
 
-	hc := &htfn{
+	hc := &HotFn{
 		cfg:   cfg,
 		proto: p,
 		tasks: tasks,
@@ -256,7 +261,9 @@ func newhtfn(cfg *task.Config, proto protocol.Protocol, tasks <-chan task.Reques
 	return hc, nil
 }
 
-func (hc *htfn) serve(ctx context.Context) {
+// serve is the main loop of a hot function. It will keep running until the
+// context is canceled. It will also stop if it goes idle for too long.
+func (hc *HotFn) serve(ctx context.Context) {
 	lctx, cancel := context.WithCancel(ctx)
 	var wg sync.WaitGroup
 	cfg := *hc.cfg
@@ -285,18 +292,19 @@ func (hc *htfn) serve(ctx context.Context) {
 				cancel()
 
 			case t := <-hc.tasks:
+				// send stdin to http request to channel
 				if err := hc.proto.Dispatch(lctx, t); err != nil {
 					logrus.WithField("ctx", lctx).Info("task failed")
 					t.Response <- task.Response{
-						&runResult{StatusValue: "error", error: err},
-						err,
+						Result: &runResult{StatusValue: "error", error: err},
+						Err:    err,
 					}
 					continue
 				}
 
 				t.Response <- task.Response{
-					&runResult{StatusValue: "success"},
-					nil,
+					Result: &runResult{StatusValue: "success"},
+					Err:    nil,
 				}
 			}
 		}
@@ -307,22 +315,6 @@ func (hc *htfn) serve(ctx context.Context) {
 	cfg.Stdin = hc.containerIn
 	cfg.Stdout = hc.containerOut
 
-	// Why can we not attach stderr to the task like we do for stdin and
-	// stdout?
-	//
-	// Stdin/Stdout are completely known to the scope of the task. You must
-	// have a task stdin to feed containers stdin, and also the other way
-	// around when reading from stdout. So both are directly related to the
-	// life cycle of the request.
-	//
-	// Stderr, on the other hand, can be written by anything any time:
-	// failure between requests, failures inside requests and messages send
-	// right after stdout has been finished being transmitted. Thus, with
-	// hot functions, there is not a 1:1 relation between stderr and tasks.
-	//
-	// Still, we do pass - at protocol level - a Task-ID header, from which
-	// the application running inside the hot function can use to identify
-	// its own stderr output.
 	errr, errw := io.Pipe()
 	cfg.Stderr = errw
 	wg.Add(1)
@@ -349,7 +341,7 @@ func runTaskReq(rnr *Runner, wg *sync.WaitGroup, t task.Request) {
 	defer rnr.Complete()
 	result, err := rnr.Run(t.Ctx, t.Config)
 	select {
-	case t.Response <- task.Response{result, err}:
+	case t.Response <- task.Response{Result: result, Err: err}:
 		close(t.Response)
 	default:
 	}
