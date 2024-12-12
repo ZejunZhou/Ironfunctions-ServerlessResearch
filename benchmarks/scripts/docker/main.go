@@ -703,15 +703,15 @@ func main() {
 
 	defer client.Disconnect(context.Background())
 
-	res := initializeUserDatabase(client)
-	if !res {
-		log.Fatal("Failed to initialize user database.")
-	}
+	// res := initializeUserDatabase(client)
+	// if !res {
+	// 	log.Fatal("Failed to initialize user database.")
+	// }
 	// initializeGeoDatabase(client)
 	// initializeCollectionDatabase(client)
 	// initializeInventoryDatabase(client)
-	// initializeRecommendationDatabase(client)
-	// initializeReservationDatabase(client)
+	initializeRecommendationDatabase(client)
+	initializeReservationDatabase(client)
 
 	log.Println("Database initialization completed.")
 }
