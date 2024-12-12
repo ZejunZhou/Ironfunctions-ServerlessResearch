@@ -84,6 +84,7 @@ func StartWorkers(ctx context.Context, rnr *Runner, tasks <-chan task.Request) {
 		case <-ctx.Done():
 			return
 		case task := <-tasks:
+			// p is the channel to send the task to the hot function
 			p := hfcmgr.getTasks(ctx, rnr, task.Config)
 			if p == nil {
 				wg.Add(1)
@@ -92,8 +93,10 @@ func StartWorkers(ctx context.Context, rnr *Runner, tasks <-chan task.Request) {
 				continue
 			}
 
-			// streamable function, use the hot function manager
+			// enqueue the task
 			rnr.Start()
+
+			// runner will loop queueHandler to get the task and handleTask
 			select {
 			case <-ctx.Done():
 				return
@@ -108,8 +111,8 @@ func StartWorkers(ctx context.Context, rnr *Runner, tasks <-chan task.Request) {
 // hot functions. All hot functions share a single task.Request stream per
 // function (chn), but each function may have more than one hot function (hc).
 type hotFnManager struct {
-	chn map[string]chan task.Request
-	hc  map[string]*hotFnServer
+	chn      map[string]chan task.Request
+	hotFnSvr map[string]*hotFnServer
 }
 
 // return the stask when it is streamable, otherwise return nil
@@ -127,20 +130,30 @@ func (h *hotFnManager) getTasks(ctx context.Context, rnr *Runner, cfg *task.Conf
 	// HTTP streamable format detected, let's start the hot function manager
 	if h.chn == nil {
 		h.chn = make(map[string]chan task.Request)
-		h.hc = make(map[string]*hotFnServer)
+		h.hotFnSvr = make(map[string]*hotFnServer)
 	}
 
 	fn := fmt.Sprint(cfg.AppName, ",", cfg.Path, cfg.Image, cfg.Timeout, cfg.Memory, cfg.Format, cfg.MaxConcurrency)
-	tasks, ok := h.chn[fn]
+	// logrus.WithField("fn", fn).Info("hot function detected")
+	// e.g. hotel,/userhotel_user:0.0.11m0s 256http8
+	tasks, ok := h.chn[fn] // tasks is a channel for specific hot function
 	if !ok {
+		// hot function not running, create a new channel for task requests
 		h.chn[fn] = make(chan task.Request)
 		tasks = h.chn[fn]
+
+		// new and call server.pipe() to start the hot function
+		// it will start looping and see if it needs to start more hot functions
 		svr := newHotFnServer(ctx, cfg, rnr, tasks)
+		// create a new hot function container
 		if err := svr.launch(ctx); err != nil {
 			logrus.WithError(err).Error("cannot start hot function supervisor")
 			return nil
 		}
-		h.hc[fn] = svr
+		h.hotFnSvr[fn] = svr
+	} else {
+		// hot function already running, just return the channel
+		// logrus.WithField("fn", fn).Info("hot function already running")
 	}
 
 	return tasks
@@ -180,9 +193,12 @@ func newHotFnServer(ctx context.Context, cfg *task.Config, rnr *Runner, tasks <-
 func (svr *hotFnServer) pipe(ctx context.Context) {
 	for {
 		select {
+		// tasksin is the channel that receives all incoming tasks
 		case t := <-svr.tasksin:
+			// tasksout is the channel that feeds the hot functions
 			svr.tasksout <- t
 			if len(svr.tasksout) > 0 {
+				logrus.WithField("tasks", len(svr.tasksout)).Info("hot function saturation detected, starting more")
 				if err := svr.launch(ctx); err != nil {
 					logrus.WithError(err).Error("cannot start more hot functions")
 				}
@@ -193,8 +209,10 @@ func (svr *hotFnServer) pipe(ctx context.Context) {
 	}
 }
 
+// launch starts a new hot function, pass input to container
 func (svr *hotFnServer) launch(ctx context.Context) error {
 	select {
+	// if there is a slot available, start a new hot function
 	case svr.maxc <- struct{}{}:
 		hc, err := newHotFn(
 			svr.cfg,
@@ -206,7 +224,9 @@ func (svr *hotFnServer) launch(ctx context.Context) error {
 			return err
 		}
 		go func() {
+			// start the hot function, pass stdin/stdout to container
 			hc.serve(ctx)
+			// free up the slot
 			<-svr.maxc
 		}()
 	default:
@@ -291,6 +311,7 @@ func (hc *HotFn) serve(ctx context.Context) {
 				logger.Info("Canceling inactive hot function")
 				cancel()
 
+			// if there comes a task
 			case t := <-hc.tasks:
 				// send stdin to http request to channel
 				if err := hc.proto.Dispatch(lctx, t); err != nil {
@@ -326,6 +347,7 @@ func (hc *HotFn) serve(ctx context.Context) {
 		}
 	}()
 
+	// run the hot function
 	result, err := hc.rnr.Run(lctx, &cfg)
 	if err != nil {
 		logrus.WithError(err).Error("hot function failure detected")

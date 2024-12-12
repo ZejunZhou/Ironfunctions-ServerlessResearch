@@ -241,6 +241,11 @@ func (drv *DockerDriver) Prepare(ctx context.Context, task drivers.ContainerTask
 		envvars = append(envvars, name+"="+val)
 	}
 
+	envvars = append(envvars, "FUNC_ID="+task.Id())
+	cmd = append(cmd, "RUN touch /dev/shm/"+task.Image()+"_input_"+task.Id()+"\n")
+	cmd = append(cmd, "RUN touch /dev/shm/"+task.Image()+"_output_"+task.Id())
+	// logrus.WithFields(logrus.Fields{"task_id": task.Id(), "envvars": envvars, "cmd": cmd}).Infoln("docker envvars", envvars)
+
 	containerName := newContainerID(task)
 	container := docker.CreateContainerOptions{
 		Name: containerName,
