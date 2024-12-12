@@ -97,7 +97,7 @@ func writeUserToSharedMemory(user *User) error {
 	return nil
 }
 
-const MongoDBURL = "mongodb://pc99.cloudlab.umass.edu:27017"
+const MongoDBURL = "mongodb://pc21.cloudlab.umass.edu"
 
 func getUserFromMongoDB(username string) (*User, error) {
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(MongoDBURL))

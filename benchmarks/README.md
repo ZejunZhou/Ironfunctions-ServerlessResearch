@@ -25,14 +25,14 @@ wrk -L -U -s ./hotel_user.lua http://pc99.cloudlab.umass.edu:8080 -R 500 > ./hot
 nightcore:
 
 ```zsh
-curl http://pc99.cloudlab.umass.edu:8080/function/user?username=Cornel_2&password=2222222222
+curl http://pc21.cloudlab.umass.edu:8080/function/user?username=Cornel_2&password=2222222222
 
-wrk -L -U -s ./hotel_user_nightcore.lua http://pc99.cloudlab.umass.edu:8080 -R 50 > ./hotel_user/nightcore/50
-wrk -L -U -s ./hotel_user_nightcore.lua http://pc99.cloudlab.umass.edu:8080 -R 100 > ./hotel_user/nightcore/100
-wrk -L -U -s ./hotel_user_nightcore.lua http://pc99.cloudlab.umass.edu:8080 -R 200 > ./hotel_user/nightcore/200
-wrk -L -U -s ./hotel_user_nightcore.lua http://pc99.cloudlab.umass.edu:8080 -R 300 > ./hotel_user/nightcore/300
-wrk -L -U -s ./hotel_user_nightcore.lua http://pc99.cloudlab.umass.edu:8080 -R 400 > ./hotel_user/nightcore/400
-wrk -L -U -s ./hotel_user_nightcore.lua http://pc99.cloudlab.umass.edu:8080 -R 500 > ./hotel_user/nightcore/500
+wrk -L -U -s ./hotel_user_nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 50 > ./hotel_user/nightcore/50
+wrk -L -U -s ./hotel_user_nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 100 > ./hotel_user/nightcore/100
+wrk -L -U -s ./hotel_user_nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 200 > ./hotel_user/nightcore/200
+wrk -L -U -s ./hotel_user_nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 300 > ./hotel_user/nightcore/300
+wrk -L -U -s ./hotel_user_nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 400 > ./hotel_user/nightcore/400
+wrk -L -U -s ./hotel_user_nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 500 > ./hotel_user/nightcore/500
 ```
 
 ### Mixed Type
@@ -40,6 +40,12 @@ wrk -L -U -s ./hotel_user_nightcore.lua http://pc99.cloudlab.umass.edu:8080 -R 5
 ## REMOTE WRK2
 
 ```zsh
-wrk -t 4 -c 64 -d 150 -L -U -s ./mixed-workload_type_1.lua http://pc70.cloudlab.umass.edu:8080 -R 10
+wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 50 > ./scripts/hotel_resv/50
+wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 100 > ./scripts/hotel_resv/100
+wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 200 > ./scripts/hotel_resv/200
+wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 300 > ./scripts/hotel_resv/300
+wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 400 > ./scripts/hotel_resv/400
+
+
 
 ```

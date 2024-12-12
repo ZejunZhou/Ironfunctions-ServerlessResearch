@@ -15,7 +15,7 @@ type User struct {
 	Password string `bson:"password"`
 }
 
-const MongoDBURL = "mongodb://pc99.cloudlab.umass.edu:27017"
+const MongoDBURL = "mongodb://pc21.cloudlab.umass.edu"
 
 func initializeUserDatabase(client *mongo.Client) bool {
 	err := client.Ping(context.TODO(), nil)
