@@ -37,7 +37,7 @@ type Server struct {
 
 const fifoPath = "/dev/shm/hotel_rate:0.0.1"
 const memcachedAddr = "localhost:11211"
-const mongoDBURL = "mongodb://localhost:27017"
+const mongoDBURL = "mongodb://pc21.cloudlab.umass.edu"
 
 func readFromFIFO(ch chan<- string) {
 	fifoPathInput := fifoPath + "_input_" + os.Getenv("FUNC_ID")

@@ -20,7 +20,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const MongoDBURL = "mongodb://localhost:27017"
+const MongoDBURL = "mongodb://pc21.cloudlab.umass.edu"
 const maxRecommendationResults = 5
 
 type HotelRecommendation struct {

@@ -35,9 +35,9 @@ wrk -L -U -s ./hotel_user_nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 4
 wrk -L -U -s ./hotel_user_nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 500 > ./hotel_user/nightcore/500
 ```
 
-### Mixed Type
-
 ## REMOTE WRK2
+
+### Nightcore
 
 ```zsh
 wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 50 > ./scripts/hotel_resv/50
@@ -45,7 +45,14 @@ wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -
 wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 200 > ./scripts/hotel_resv/200
 wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 300 > ./scripts/hotel_resv/300
 wrk -L -U -s ./scripts/mixed-nightcore.lua http://pc21.cloudlab.umass.edu:8080 -R 400 > ./scripts/hotel_resv/400
+```
 
+### Ironfunc
 
-
+```zsh
+wrk -L -U -s ./scripts/mixed-workload_type_1.lua http://pc21.cloudlab.umass.edu:8080 -R 50 > ./scripts/hotel_resv/50
+wrk -L -U -s ./scripts/mixed-workload_type_1.lua http://pc21.cloudlab.umass.edu:8080 -R 100 > ./scripts/hotel_resv/100
+wrk -L -U -s ./scripts/mixed-workload_type_1.lua http://pc21.cloudlab.umass.edu:8080 -R 200 > ./scripts/hotel_resv/200
+wrk -L -U -s ./scripts/mixed-workload_type_1.lua http://pc21.cloudlab.umass.edu:8080 -R 300 > ./scripts/hotel_resv/300
+wrk -L -U -s ./scripts/mixed-workload_type_1.lua http://pc21.cloudlab.umass.edu:8080 -R 400 > ./scripts/hotel_resv/400
 ```

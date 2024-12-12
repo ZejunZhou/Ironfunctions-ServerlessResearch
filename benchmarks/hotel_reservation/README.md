@@ -1,4 +1,5 @@
 ```zsh
+REMOTE=pc21.cloudlab.umass.edu
 curl -X POST --data '{
 "inDate":"2015-04-10",
 "outDate":"2015-04-12",
@@ -9,5 +10,5 @@ curl -X POST --data '{
 "username":"user123",
 "password":"pass123",
 "number": 11
-}' http://localhost:8080/r/hotel/reservation
+}' http://$REMOTE:8080/r/hotel/reservation
 ```
