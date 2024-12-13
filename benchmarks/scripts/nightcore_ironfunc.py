@@ -8,23 +8,26 @@ percentiles = [50, 75, 90, 99, 99.9, 99.99]
 percentile_labels = ['p50', 'p75', 'p90', 'p99', 'p99.9', 'p99.99']
 
 # Create the plot
+bar_width = 0.35
+index = np.arange(len(percentiles))
+
 plt.figure(figsize=(10, 6))
-plt.plot(range(len(percentiles)), iron_latency, label='Iron Function', marker='o')
-plt.plot(range(len(percentiles)), night_latency, label='Nightcore', marker='o')
+plt.bar(index, night_latency, bar_width, label='Nightcore')
+plt.bar(index  + bar_width, iron_latency, bar_width, label='Iron Function')
 
 # Add data labels
-for i, (iron, night) in enumerate(zip(iron_latency, night_latency)):
-    plt.text(i, iron, f'{iron}ms', fontsize=9, ha='right')
-    plt.text(i, night, f'{night}ms', fontsize=9, ha='left')
+# for i, (iron, night) in enumerate(zip(iron_latency, night_latency)):
+#     plt.text(i, night + 10, f'{night}ms', fontsize=9, ha='center')
+#     plt.text(i  + bar_width, iron + 10, f'{iron}ms', fontsize=9, ha='center')
 
 # Graph details
-plt.title("Latency Distribution Comparison", fontsize=14)
+plt.title("Latency Distribution Comparison(RPS 50)", fontsize=14)
 plt.xlabel("Percentiles", fontsize=12)
 plt.ylabel("Latency (ms)", fontsize=12)
 plt.yscale('log')  # Log scale for better visualization of high variance
-plt.grid(True, which="both", linestyle="--", linewidth=0.5)
+# plt.grid(True, which="both", linestyle="--", linewidth=0.5)
 plt.legend(fontsize=12)
-plt.xticks(range(len(percentiles)), labels=percentile_labels)
+plt.xticks(index + bar_width / 2, labels=percentile_labels)
 
 # Save the graph to a file
 plt.savefig('latency_distribution_comparison.png')

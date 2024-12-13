@@ -4,10 +4,10 @@ Running 10s test @ http://pc99.cloudlab.umass.edu:8080
     Latency    17.36ms    7.39ms  71.94ms   94.40%
     Req/Sec       -nan      -nan   0.00      0.00%
   Latency Distribution (HdrHistogram - Recorded Latency)
- 50.000%   15.18ms
- 75.000%   18.25ms
+ 50.000%   18.18ms
+ 75.000%   26.25ms
  90.000%   21.77ms
- 99.000%   57.34ms
+ 99.000%   64.34ms
  99.900%   70.33ms
  99.990%   72.00ms
  99.999%   72.00ms
